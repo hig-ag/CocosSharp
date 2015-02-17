@@ -43,7 +43,7 @@ namespace CocosSharp
             texture.Visible = false;
 
             // Render outScene to its texturebuffer
-            texture.BeginWithClear(0, 0, 0, 1);
+            texture.BeginWithClear(1, 1, 1, 1);
             SceneNodeContainerToBeModified.Visit();
             texture.End();
 
