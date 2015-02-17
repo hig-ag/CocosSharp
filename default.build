@@ -28,12 +28,14 @@
     <call target="buildphysics"/>
     <call target="buildPCL"/>
     <call target="buildwindows"/>
+	<call target="buildpipeline"/>
     <call target="buildwindowsphone8"/>
     <call target="buildios"/>
     <call target="buildmac"/>
     <call target="buildandroid"/>
     <call target="buildwindows8"/>
     <call target="buildnugets"/>
+    <call target="buildXStemplates" />
 
     <!--call target="buildtemplates"/-->
   </target>
@@ -73,6 +75,15 @@
       <exec program="xbuild" commandline="/t:Build /p:Configuration=${configuration} CocosSharp.Windows.sln" />
       <exec program="xbuild" commandline="/t:Clean /p:Configuration=${configuration} CocosSharp.WindowsGL.sln" />
       <exec program="xbuild" commandline="/t:Build /p:Configuration=${configuration} CocosSharp.WindowsGL.sln" />
+    </if>
+  </target>
+
+  <target name="buildpipeline" description="Build Windows" depends="clean">
+    <if test="${os == 'Win32NT'}">
+       <nant buildfile="CocosSharp.Content.Pipeline.Importers/default.build" target="build" />
+    </if>
+    <if test="${os == 'MacOS'}">
+    	<nant buildfile="CocosSharp.Content.Pipeline.Importers/default.build" target="build" />	
     </if>
   </target>
 
@@ -188,7 +199,7 @@
       <exec program="${nuget.cmd.dir.path} " commandline='pack "${nuspec.file.dir.path}CocosSharp.iOS.nuspec" -OutputDirectory "${packages.dir.path}"' />
       <exec program="${nuget.cmd.dir.path} " commandline='pack "${nuspec.file.dir.path}CocosSharp.Android.nuspec" -OutputDirectory "${packages.dir.path}"' />
       <exec program="${nuget.cmd.dir.path} " commandline='pack "${nuspec.file.dir.path}CocosSharp.WindowsDX.nuspec" -OutputDirectory "${packages.dir.path}"' />
-      <!--exec program="${nuget.cmd.dir.path} " commandline='pack "${nuspec.file.dir.path}Cocos2D.MGCB.nuspec" -OutputDirectory "${packages.dir.path}"' /-->
+      <exec program="${nuget.cmd.dir.path} " commandline='pack "${nuspec.file.dir.path}CocosSharp.ContentBuild.Windows.nuspec" -OutputDirectory "${packages.dir.path}"' />
       <exec program="${nuget.cmd.dir.path} " commandline='pack "${nuspec.physics.file.dir.path}ChipmunkSharp.Windows.nuspec" -OutputDirectory "${packages.dir.path}"' />
     </if>
     <if test="${os == 'MacOS'}">
@@ -212,6 +223,7 @@
       <exec program="mono" basedir="${monodir}" commandline=' "${nuget.cmd.dir.path}" pack "${nuspec.file.dir.path}CocosSharp.MacOS.nuspec" -OutputDirectory "${packages.dir.path}" -BasePath ./' />
       <exec program="mono" basedir="${monodir}" commandline=' "${nuget.cmd.dir.path}" pack "${nuspec.file.dir.path}CocosSharp.iOS.Mac.nuspec" -OutputDirectory "${packages.dir.path}" -BasePath ./' />
       <exec program="mono" basedir="${monodir}" commandline=' "${nuget.cmd.dir.path}" pack "${nuspec.file.dir.path}CocosSharp.Android.Mac.nuspec" -OutputDirectory "${packages.dir.path}" -BasePath ./' />
+      <exec program="mono" basedir="${monodir}" commandline=' "${nuget.cmd.dir.path}" pack "${nuspec.file.dir.path}CocosSharp.ContentBuild.Mac.nuspec" -OutputDirectory "${packages.dir.path}" -BasePath ./' />
       <exec program="mono" basedir="${monodir}" commandline=' "${nuget.cmd.dir.path}" pack "${nuspec.physics.file.dir.path}ChipmunkSharp.Mac.nuspec" -OutputDirectory "${packages.dir.path}" -BasePath "./src/external lib/ChipmunkSharp/"' /> 
     </if>
   </target>
@@ -223,5 +235,23 @@
        <nant buildfile="ProjectTemplates/Templates/StarterTemplates/default.build" target="build" />
     </if>
   </target>
+
+    <target name="buildXStemplates" description="Build CocosSharp XS project templates" depends="checkos">
+
+    <if test="${os == 'MacOS'}">
+        <delete dir="${project::get-base-directory()}/ProjectTemplates/XamarinStudio/Packages" />
+        <copy todir="${project::get-base-directory()}/ProjectTemplates/XamarinStudio/Packages" >
+        <fileset basedir="${project::get-base-directory()}/ProjectTemplates/NuGet/bin">
+            <include name="CocosSharp.iOS.*.nupkg" />
+            <include name="CocosSharp.Android.*.nupkg" />
+            <include name="CocosSharp.MacOS.*.nupkg" />
+            <include name="CocosSharp.PCL.Shared.*.nupkg" />
+        </fileset>
+        </copy>
+        <exec program="mdtool" basedir="${mdtooldir}" workingdir="${project::get-base-directory()}/ProjectTemplates/XamarinStudio/" commandline="setup pack MonoDevelop.CocosSharp.addin.xml" />
+    </if>
+    </target>
+
+
 
 </project>

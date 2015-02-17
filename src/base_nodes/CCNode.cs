@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using System.Threading.Tasks;
 #if USE_PHYSICS
 using ChipmunkSharp;
 #endif
@@ -841,10 +842,10 @@ namespace CocosSharp
             set { Scene.Viewport = value; }
         }
 
-        protected internal virtual Matrix XnaLocalMatrix 
+        internal virtual Matrix XnaLocalMatrix 
         { 
             get { return xnaLocalMatrix; }
-            protected set 
+            set 
             {
                 xnaLocalMatrix = value;
             }
@@ -2018,32 +2019,44 @@ namespace CocosSharp
         {
         }
 
+        internal virtual CCDrawManager DrawManager 
+        {
+            get 
+            {
+                return Window != null ? Window.DrawManager : CCDrawManager.SharedDrawManager;
+            }
+        }
+
         // This is called with every call to the MainLoop on the CCDirector class. In XNA, this is the same as the Draw() call.
         public virtual void Visit()
         {
-            if (!Visible || Scene == null)
+            bool renderTarget = CCDrawManager.SharedDrawManager.CurrentRenderTarget != null;
+            
+            if ((!Visible || Scene == null) && !renderTarget)
             {
                 return;
             }
 
+            var drawManager = DrawManager;
+
             // Set camera view/proj matrix even if ChildClippingMode is None
-            if(Camera != null)
+            if(Camera != null && !renderTarget)
             {
-                Window.DrawManager.ViewMatrix = Camera.ViewMatrix;
-                Window.DrawManager.ProjectionMatrix = Camera.ProjectionMatrix;
+                drawManager.ViewMatrix = Camera.ViewMatrix;
+                drawManager.ProjectionMatrix = Camera.ProjectionMatrix;
             }
 
 
-            Window.DrawManager.PushMatrix();
+            drawManager.PushMatrix();
 
             if (Grid != null && Grid.Active)
             {
                 Grid.BeforeDraw();
-                Transform ();
+                Transform (drawManager);
             }
             else
             {
-                Transform();
+                Transform(drawManager);
             }
 
             int i = 0;
@@ -2093,16 +2106,21 @@ namespace CocosSharp
             if (Grid != null && Grid.Active)
             {
                 Grid.AfterDraw(this);
-                Window.DrawManager.SetIdentityMatrix();
+                drawManager.SetIdentityMatrix();
                 Grid.Blit();
             }
 
-            Window.DrawManager.PopMatrix();
+            drawManager.PopMatrix();
+        }
+
+        internal void Transform(CCDrawManager drawManager)
+        {
+            drawManager.MultMatrix(ref xnaLocalMatrix);
         }
 
         public void Transform()
         {
-            Window.DrawManager.MultMatrix(ref xnaLocalMatrix);
+            Transform(Window.DrawManager);
         }
 
         public void TransformAncestors()
@@ -2339,6 +2357,25 @@ namespace CocosSharp
             return ActionManager != null ? ActionManager.AddAction(action, this, !IsRunning) : AddLazyAction(action, this, !IsRunning);
         }
 
+        /// <summary>
+        /// Runs an Action so that it can be awaited.
+        /// </summary>
+        /// <param name="action">An instance of a CCFiniteTimeAction object.</param>
+        public Task<CCActionState> RunActionAsync(CCFiniteTimeAction action)
+        {
+
+            Debug.Assert(action != null, "Argument must be non-nil");
+
+            var tcs = new TaskCompletionSource<CCActionState> ();
+
+            CCActionState state = null;
+            var asyncAction = new CCSequence (action, new CCCallFunc (() => tcs.TrySetResult (state)));
+
+            state = ActionManager != null ? ActionManager.AddAction (asyncAction, this, !IsRunning) : AddLazyAction(asyncAction, this, !IsRunning);
+
+            return tcs.Task;
+        }
+
         public CCActionState RunActions(params CCFiniteTimeAction[] actions)
         {
             Debug.Assert(actions != null, "Argument must be non-nil");
@@ -2346,6 +2383,31 @@ namespace CocosSharp
 			var action = actions.Length > 1 ? new CCSequence(actions) : actions[0];
 
             return ActionManager != null ? ActionManager.AddAction (action, this, !IsRunning) : AddLazyAction(action, this, !IsRunning);
+        }
+
+        /// <summary>
+        /// Runs a sequence of Actions so that it can be awaited.
+        /// </summary>
+        /// <param name="actions">An array of CCFiniteTimeAction objects.</param>
+        public Task<CCActionState> RunActionsAsync(params CCFiniteTimeAction[] actions)
+        {
+            Debug.Assert(actions != null, "Argument must be non-nil");
+            Debug.Assert(actions.Length > 0, "Paremeter: actions has length of zero. At least one action must be set to run.");
+
+            var tcs = new TaskCompletionSource<CCActionState> ();
+
+            var numActions = actions.Length;
+            var asyncActions = new CCFiniteTimeAction[actions.Length + 1];
+            Array.Copy (actions, asyncActions, numActions);
+
+            CCActionState state = null;
+            asyncActions [numActions] = new CCCallFunc (() => tcs.TrySetResult (state));
+
+            var asyncAction = asyncActions.Length > 1 ? new CCSequence(asyncActions) : asyncActions[0];
+
+            state = ActionManager != null ? ActionManager.AddAction (asyncAction, this, !IsRunning) : AddLazyAction(asyncAction, this, !IsRunning);
+               
+            return tcs.Task;
         }
 
         public void StopAllActions()

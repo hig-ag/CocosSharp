@@ -9,7 +9,7 @@ namespace tests
     public class DrawPrimitivesTestScene : TestScene
     {
         private static int sceneIdx = -1;
-        private static int MAX_LAYER = 3;
+        private static int MAX_LAYER = 9;
 
         public override void runThisTest()
         {
@@ -27,7 +27,19 @@ namespace tests
                 case 1:
                     return new DrawNodeTest();
                 case 2:
+                    return new DrawNodeTest1();
+                case 3:
                     return new DrawPrimitivesWithRenderTextureTest();
+                case 4:
+                    return new DrawPrimitivesWithRenderTextureTest1();
+                case 5:
+                    return new DrawPrimitivesWithRenderTextureTest2();
+                case 6:
+                    return new DrawPrimitivesWithRenderTextureTest3();
+                case 7:
+                    return new GeometryBatchTest1();
+                case 8:
+                    return new GeometryBatchTest2();
             }
             return null;
         }

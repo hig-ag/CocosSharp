@@ -246,8 +246,7 @@ namespace CocosSharp
                 if(textureRectInPixels != value) 
                 {
                     textureRectInPixels = value;
-                    if (ContentSize == CCSize.Zero)
-                        ContentSize = textureRectInPixels.Size / DefaultTexelToContentSizeRatios;
+                    ContentSize = textureRectInPixels.Size / DefaultTexelToContentSizeRatios;
 
                     UpdateSpriteTextureQuads();
                 }
@@ -502,7 +501,7 @@ namespace CocosSharp
 
             Debug.Assert(batchNode == null);
 
-            CCDrawManager drawManager = Window.DrawManager;
+            CCDrawManager drawManager = DrawManager;
 
             drawManager.BlendFunc(BlendFunc);
             drawManager.BindTexture(Texture);

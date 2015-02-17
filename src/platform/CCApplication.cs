@@ -8,8 +8,8 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Input.Touch;
 
 #if IOS
-using MonoTouch.Foundation;
-using MonoTouch.UIKit;
+using Foundation;
+using UIKit;
 #endif
 
 #if ANDROID
@@ -304,7 +304,7 @@ namespace CocosSharp
                 CCSprite.DefaultTexelToContentSizeRatios = value;
                 CCLabelTtf.DefaultTexelToContentSizeRatios = value;
                 CCLabelBMFont.DefaultTexelToContentSizeRatios = value;
-                CCTMXLayer.DefaultTexelToContentSizeRatios = value;
+                CCTileMapLayer.DefaultTexelToContentSizeRatios = value;
             }
         }
 
@@ -614,6 +614,12 @@ namespace CocosSharp
         {
             CCWindow window = new CCWindow(this, screenSizeInPixels, xnaGame.Window, xnaDeviceManager);
 
+            // We need to reset the device so internal variables are setup correctly when
+            // we need to draw primitives or visit nodes outside of the Scene Graph.  Example is
+            // when drawing to a render texture in a class.  If the device is not initialized correctly before
+            // the first application Draw() in the application occurs then drawing with primitives results in weird behaviour.
+            window.DrawManager.ResetDevice ();
+
             gameWindows.Add(window);
 
             return window;
@@ -706,6 +712,10 @@ namespace CocosSharp
 
         void GameExiting(object sender, EventArgs e)
         {
+            // Explicitly dispose of graphics device which will in turn dispose of all graphics resources
+            // This allows us to delete things in a deterministic manner without relying on finalizers
+            xnaGame.GraphicsDevice.Dispose();
+
             foreach (CCWindow window in gameWindows)
             {
                 window.EndAllSceneDirectors();

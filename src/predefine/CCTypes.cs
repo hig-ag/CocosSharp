@@ -147,6 +147,7 @@ namespace CocosSharp
         public static readonly CCColor4B Black = new CCColor4B(0, 0, 0, 255);
         public static readonly CCColor4B Orange = new CCColor4B(255, 127, 0, 255);
         public static readonly CCColor4B Gray = new CCColor4B(166, 166, 166, 255);
+        public static readonly CCColor4B LightGray = new CCColor4B(211, 211, 211, 255);
         public static readonly CCColor4B AliceBlue = new CCColor4B(240, 248, 255, 255);
         public static readonly CCColor4B Aquamarine = new CCColor4B (127, 255, 212, 255);
         public static readonly CCColor4B Transparent = new CCColor4B(0, 0, 0, 0);
@@ -764,6 +765,47 @@ namespace CocosSharp
             TexCoords = new CCTex2F();
         }
     }
+
+    /// <summary>
+    /// a Point with a vertex point and a color 4B
+    /// </summary>
+    public struct CCV3F_C4B : IVertexType
+    {
+        public static readonly VertexDeclaration VertexDeclaration;
+
+        public CCVertex3F Vertices;
+        public CCColor4B Colors;
+
+        VertexDeclaration IVertexType.VertexDeclaration
+        {
+            get { return VertexDeclaration; }
+        }
+
+        public CCV3F_C4B(CCVertex3F position, CCColor4B color)
+        {
+            this.Vertices = position;
+            Colors = color;
+        }
+
+        public CCV3F_C4B(CCPoint position, CCColor4B color)
+        {
+            this.Vertices = CCVertex3F.Zero;
+            this.Vertices.X = position.X;
+            this.Vertices.Y = position.Y;
+            Colors = color;
+        }
+
+        static CCV3F_C4B ()
+        {
+            var elements = new VertexElement[]
+                {
+                    new VertexElement(0, VertexElementFormat.Vector3, VertexElementUsage.Position, 0),
+                    new VertexElement(12, VertexElementFormat.Color, VertexElementUsage.Color, 0),
+                };
+            VertexDeclaration = new VertexDeclaration(elements);
+        }
+    }
+
 
     /// <summary>
     /// a Point with a vertex point, a tex coord point and a color 4F

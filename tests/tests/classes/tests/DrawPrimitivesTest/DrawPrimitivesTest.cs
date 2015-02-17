@@ -66,8 +66,18 @@ namespace tests
     {
         #region Setup content
 
+        public override string Subtitle
+        {
+            get
+            {
+                return "RenderTarget CCDrawNode Visit";
+            }
+        }
+
         public override void OnEnter()
         {
+            base.OnEnter(); 
+
             base.OnEnter(); 
 
             var windowSize = Layer.VisibleBoundsWorldspace.Size;
@@ -76,22 +86,137 @@ namespace tests
             AddChild(text, 24);
 
             CCDrawNode draw = new CCDrawNode();
-            text.AddChild(draw, 10);
-            text.Begin();
+
             // Draw polygons
             CCPoint[] points = new CCPoint[]
-            {
-                new CCPoint(windowSize.Height / 4, 0),
-                new CCPoint(windowSize.Width, windowSize.Height / 5),
-                new CCPoint(windowSize.Width / 3 * 2, windowSize.Height)
-            };
+                {
+                    new CCPoint(windowSize.Height / 4, 0),
+                    new CCPoint(windowSize.Width, windowSize.Height / 5),
+                    new CCPoint(windowSize.Width / 3 * 2, windowSize.Height)
+                };
             draw.DrawPolygon(points, points.Length, new CCColor4F(1, 0, 0, 0.5f), 4, new CCColor4F(0, 0, 1, 1));
-            text.End();
+            draw.AnchorPoint = CCPoint.AnchorLowerLeft;
 
+            text.Begin();
+            draw.Visit();
+            text.End();        
         }
 
         #endregion Setup content
     }
+
+    public class DrawPrimitivesWithRenderTextureTest1 : BaseDrawNodeTest
+    {
+        #region Setup content
+
+        public override string Subtitle
+        {
+            get
+            {
+                return "Test RenderTarget Clipping with CCDrawNode as Child";
+            }
+        }
+
+        public override void OnEnter()
+        {
+            base.OnEnter(); 
+
+
+           
+            CCDrawNode circle = new CCDrawNode();
+            circle.DrawSolidCircle(new CCPoint(150.0f, 150.0f), 75.0f, new CCColor4B(255, 255, 255, 255));
+
+            CCRenderTexture rtm = new CCRenderTexture(new CCSize(200.0f, 200.0f), new CCSize(200.0f, 200.0f), CCSurfaceFormat.Color, CCDepthFormat.Depth24Stencil8);
+
+            rtm.AddChild(circle);
+
+            rtm.BeginWithClear(CCColor4B.Orange);
+            rtm.End();
+
+            // Make sure our children nodes get visited
+            rtm.AutoDraw = true;
+
+            rtm.Position = VisibleBoundsWorldspace.Center;
+            rtm.AnchorPoint = CCPoint.AnchorMiddle;
+
+
+            AddChild(rtm);
+        }
+
+        #endregion Setup content
+    }
+
+    public class DrawPrimitivesWithRenderTextureTest2 : BaseDrawNodeTest
+    {
+        #region Setup content
+
+        public override string Subtitle
+        {
+            get
+            {
+                return "Test RenderTarget Clipping with CCDrawNode Visit";
+            }
+        }
+
+
+        public override void OnEnter()
+        {
+            base.OnEnter(); 
+
+            CCDrawNode circle = new CCDrawNode();
+            circle.DrawSolidCircle(new CCPoint(150.0f, 150.0f), 75.0f, new CCColor4B(255, 255, 255, 255));
+
+            CCRenderTexture rtm = new CCRenderTexture(new CCSize(200.0f, 200.0f), new CCSize(200.0f, 200.0f), CCSurfaceFormat.Color, CCDepthFormat.Depth24Stencil8);
+            rtm.BeginWithClear(CCColor4B.Orange);
+            circle.Visit(); // Draw to rendertarget
+            rtm.End();
+
+            rtm.Position = VisibleBoundsWorldspace.Center;
+            rtm.AnchorPoint = CCPoint.AnchorMiddle;
+
+            AddChild(rtm);
+        }
+
+        #endregion Setup content
+    }
+
+
+    public class DrawPrimitivesWithRenderTextureTest3 : BaseDrawNodeTest
+    {
+        #region Setup content
+
+        public override string Subtitle
+        {
+            get
+            {
+                return "Test RenderTarget Clipping with CCDrawNode Visit to Sprite";
+            }
+        }
+
+
+        public override void OnEnter()
+        {
+            base.OnEnter(); 
+
+            CCDrawNode circle = new CCDrawNode();
+            circle.DrawSolidCircle(new CCPoint(150.0f, 150.0f), 75.0f, new CCColor4B(255, 255, 255, 255));
+
+            CCRenderTexture rtm = new CCRenderTexture(new CCSize(200.0f, 200.0f), new CCSize(200.0f, 200.0f), CCSurfaceFormat.Color, CCDepthFormat.Depth24Stencil8);
+            rtm.BeginWithClear(CCColor4B.Orange);
+            circle.Visit(); // Draw to rendertarget
+            rtm.End();
+
+            // Create a new sprite from the render target texture
+            var sprite = new CCSprite(rtm.Texture);
+            sprite.Position = VisibleBoundsWorldspace.Center;
+
+
+            AddChild(sprite);
+        }
+
+        #endregion Setup content
+    }
+
 
     public class DrawPrimitivesTest : BaseDrawNodeTest
     {
@@ -238,6 +363,197 @@ namespace tests
 		}
     }
 
+    public class GeometryBatchTest1 : BaseDrawNodeTest
+    {
+
+        CCTexture2D texture;
+
+        public GeometryBatchTest1 () : base()
+        {
+            texture = CCTextureCache.SharedTextureCache.AddImage("Images/CyanSquare.png");
+            //texture = CCTextureCache.SharedTextureCache.AddImage("Images/BackGround.png");
+
+        }
+
+        protected override void AddedToScene()
+        {
+            base.AddedToScene();
+        }
+
+        protected override void Draw()
+        {
+            base.Draw();
+
+            var visibleRect = VisibleBoundsWorldspace;
+
+            var geoBatch = new CCGeometryBatch();
+
+            geoBatch.Begin();
+
+            var item = geoBatch.CreateGeometryInstance(3, 3);
+
+            var vertices = item.GeometryPacket.Vertices;
+
+            var windowSize = VisibleBoundsWorldspace.Size;
+            var packet = item.GeometryPacket;
+
+            packet.Texture = texture;
+            item.GeometryPacket = packet;
+            // Draw polygons
+
+            vertices[0].Colors = CCColor4B.White;
+            vertices[1].Colors = CCColor4B.White;
+            vertices[2].Colors = CCColor4B.White;
+
+            // Texture coordinates use a normalzed value 0 to 1
+            vertices[0].TexCoords.U = 0;
+            vertices[0].TexCoords.V = 0;
+
+            vertices[1].TexCoords.U = 1;
+            vertices[1].TexCoords.V = 0;
+
+            vertices[2].TexCoords.U = 1;
+            vertices[2].TexCoords.V = 1;
+
+            vertices[0].Vertices.X = 0;
+            vertices[0].Vertices.Y = 0;
+
+            vertices[1].Vertices.X = texture.PixelsWide;
+            vertices[1].Vertices.Y = 0;
+
+            vertices[2].Vertices.X = texture.PixelsWide;
+            vertices[2].Vertices.Y = texture.PixelsHigh;
+
+            item.GeometryPacket.Indicies = new int[] { 2, 1, 0 };
+
+            var rotation = CCAffineTransform.Identity;
+            rotation.Rotation = (float)Math.PI / 4.0f;
+            rotation.Tx = windowSize.Center.X - texture.PixelsWide / 2;
+            rotation.Ty = windowSize.Center.Y - texture.PixelsHigh / 2;
+
+            item.InstanceAttributes.AdditionalTransform = rotation;
+
+            geoBatch.End();
+        }
+
+        public override string Title
+        {
+            get
+            {
+                return "Geometry Batch";
+            }
+        }
+
+        public override string Subtitle
+        {
+            get
+            {
+                return "Auto Clear of instances and transform";
+            }
+        }
+    }
+
+    public class GeometryBatchTest2 : BaseDrawNodeTest
+    {
+
+        CCTexture2D texture;
+        CCGeometryBatch geoBatch = new CCGeometryBatch();
+
+        public GeometryBatchTest2 () : base()
+        {
+            texture = CCTextureCache.SharedTextureCache.AddImage("Images/CyanSquare.png");
+            //texture = CCTextureCache.SharedTextureCache.AddImage("Images/BackGround.png");
+
+        }
+
+        protected override void AddedToScene()
+        {
+            base.AddedToScene();
+
+            var visibleRect = VisibleBoundsWorldspace;
+
+            // We will not clear the primitives after creating them
+            // This will allow us to keep drawing the same over and over.
+            geoBatch.AutoClearInstances = false;
+
+            geoBatch.Begin();
+
+            var item = geoBatch.CreateGeometryInstance(3, 3);
+
+            var vertices = item.GeometryPacket.Vertices;
+
+            var windowSize = VisibleBoundsWorldspace.Size;
+            var packet = item.GeometryPacket;
+
+            packet.Texture = texture;
+            item.GeometryPacket = packet;
+            // Draw polygons
+
+            vertices[0].Colors = CCColor4B.White;
+            vertices[1].Colors = CCColor4B.White;
+            vertices[2].Colors = CCColor4B.White;
+
+            // Texture coordinates use a normalzed value 0 to 1
+            vertices[0].TexCoords.U = 0;
+            vertices[0].TexCoords.V = 0;
+
+            vertices[1].TexCoords.U = 1;
+            vertices[1].TexCoords.V = 0;
+
+            vertices[2].TexCoords.U = 1;
+            vertices[2].TexCoords.V = 1;
+
+            vertices[0].Vertices.X = 0;
+            vertices[0].Vertices.Y = 0;
+
+            vertices[1].Vertices.X = texture.PixelsWide;
+            vertices[1].Vertices.Y = 0;
+
+            vertices[2].Vertices.X = texture.PixelsWide;
+            vertices[2].Vertices.Y = texture.PixelsHigh;
+
+            item.GeometryPacket.Indicies = new int[] { 2, 1, 0 };
+
+            var rotation = CCAffineTransform.Identity;
+            rotation.Rotation = (float)Math.PI / 4.0f;
+            rotation.Tx = windowSize.Center.X - texture.PixelsWide / 2;
+            rotation.Ty = windowSize.Center.Y - texture.PixelsHigh / 2;
+
+            item.InstanceAttributes.AdditionalTransform = rotation;
+
+            geoBatch.End();
+        }
+
+        public override void OnExit()
+        {
+            // We will clean the batch up here.
+            geoBatch.ClearInstances();
+        }
+
+        protected override void Draw()
+        {
+            base.Draw();
+
+            geoBatch.Draw();
+        }
+
+        public override string Title
+        {
+            get
+            {
+                return "Geometry Batch";
+            }
+        }
+
+        public override string Subtitle
+        {
+            get
+            {
+                return "No Auto Clear of instances";
+            }
+        }
+    }
+
     public class DrawNodeTest : BaseDrawNodeTest
     {
         #region Setup content
@@ -318,4 +634,108 @@ namespace tests
 
         #endregion Setup content
     }
+
+
+    public class DrawNodeTest1 : BaseDrawNodeTest
+    {
+        #region Setup content
+        CCDrawNode draw;
+
+        public DrawNodeTest1()
+        {
+            draw = new CCDrawNode();
+            draw.BlendFunc = CCBlendFunc.NonPremultiplied;
+
+            AddChild(draw, 10);
+
+        }
+
+        public override string Subtitle
+        {
+            get
+            {
+                return "Using DrawTriangleList user defined geometry";
+            }
+        }
+
+        public override void OnEnter()
+        {
+            base.OnEnter(); 
+            CCSize windowSize = Layer.VisibleBoundsWorldspace.Size;
+            CCDrawNode draw = new CCDrawNode();
+            AddChild(draw, 10);
+
+            var s = windowSize;
+
+            // Draw 10 circles
+            for (int i = 0; i < 10; i++)
+            {
+                draw.DrawDot(s.Center, 10 * (10 - i),
+                    new CCColor4F(CCRandom.Float_0_1(), CCRandom.Float_0_1(), CCRandom.Float_0_1(), 1));
+            }
+
+            // Draw polygons
+            CCV3F_C4B[] points = new CCV3F_C4B[3];
+
+            points[0].Colors = CCColor4B.Red;
+            points[0].Colors.A = 127;
+
+            points[1].Colors = CCColor4B.Green;
+            points[1].Colors.A = 127;
+
+            points[2].Colors = CCColor4B.Blue;
+            points[2].Colors.A = 127;
+
+            points[0].Vertices.X = windowSize.Height / 4;
+            points[0].Vertices.Y = 0;
+
+            points[1].Vertices.X = windowSize.Width;
+            points[1].Vertices.Y = windowSize.Height / 5;
+
+            points[2].Vertices.X = windowSize.Width / 3 * 2;
+            points[2].Vertices.Y = windowSize.Height;
+
+            draw.DrawTriangleList(points);
+
+            // star poly (triggers buggs)
+            {
+                const float o = 80;
+                const float w = 20;
+                const float h = 50;
+                CCPoint[] star = new CCPoint[]
+                    {
+                        new CCPoint(o + w, o - h), new CCPoint(o + w * 2, o),                           // lower spike
+                        new CCPoint(o + w * 2 + h, o + w), new CCPoint(o + w * 2, o + w * 2),           // right spike
+                    };
+
+                draw.DrawPolygon(star, star.Length, new CCColor4F(1, 0, 0, 0.5f), 1, new CCColor4F(0, 0, 1, 1));
+            }
+
+            // star poly (doesn't trigger bug... order is important un tesselation is supported.
+            {
+                const float o = 180;
+                const float w = 20;
+                const float h = 50;
+                var star = new CCPoint[]
+                    {
+                        new CCPoint(o, o), new CCPoint(o + w, o - h), new CCPoint(o + w * 2, o),        // lower spike
+                        new CCPoint(o + w * 2 + h, o + w), new CCPoint(o + w * 2, o + w * 2),           // right spike
+                        new CCPoint(o + w, o + w * 2 + h), new CCPoint(o, o + w * 2),                   // top spike
+                        new CCPoint(o - h, o + w), // left spike
+                    };
+
+                draw.DrawPolygon(star, star.Length, new CCColor4F(1, 0, 0, 0.5f), 1, new CCColor4F(0, 0, 1, 1));
+            }
+
+
+            // Draw segment
+            draw.DrawSegment(new CCPoint(20, windowSize.Height), new CCPoint(20, windowSize.Height / 2), 10, new CCColor4F(0, 1, 0, 1));
+
+            draw.DrawSegment(new CCPoint(10, windowSize.Height / 2), new CCPoint(windowSize.Width / 2, windowSize.Height / 2), 40,
+                new CCColor4F(1, 0, 1, 0.5f));
+        }
+
+        #endregion Setup content
+    }
+
 }

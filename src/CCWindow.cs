@@ -58,11 +58,17 @@ namespace CocosSharp
             set { DrawManager.DepthTest = value; }
         }
 
-        public bool DisplayStats 
-        {
-            get { return Stats.IsEnabled; }
-            set { Stats.IsEnabled = value; }
-        }
+		public bool DisplayStats 
+		{
+			get { return Stats.IsEnabled; }
+			set { Stats.IsEnabled = value; }
+		}
+
+		public int StatsScale
+		{
+			get { return Stats.Scale; }
+			set { Stats.Scale = value; }
+		}
 
         public bool AllowUserResizing
         {
@@ -140,12 +146,19 @@ namespace CocosSharp
             this.XnaWindow = xnaWindow;
             xnaWindow.OrientationChanged += OnOrientationChanged;
             xnaWindow.ClientSizeChanged += OnWindowSizeChanged;
-
+            
+            DeviceManager = deviceManager;
             // Trying to set user resize when game is full-screen will cause app to crash 
             if(!deviceManager.IsFullScreen)
                 xnaWindow.AllowUserResizing = true;
 
             Application = application;
+
+            if (CCScene.DefaultDesignResolutionSize == CCSize.Zero)
+            {
+                CCScene.DefaultDesignResolutionSize = screenSizeInPixels;
+                CCScene.DefaultDesignResolutionPolicy = CCSceneResolutionPolicy.ExactFit;
+            }
 
             Stats.Initialize();
         }

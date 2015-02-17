@@ -43,8 +43,8 @@
 	</WizardExtension>
 	<WizardData>
 		<packages repository="extension"
-			  repositoryId="EmptyProject.CA68C8A0-4391-47E5-A8F6-A77035B971FE">
-			<package id="CocosSharp.Windows8" version="1.2.1.0" />
+			  repositoryId="Xamarin.CocosSharpTemplates">
+			<package id="CocosSharp.Windows8" version="1.3.1.0" />
 		</packages>
 	</WizardData>
 

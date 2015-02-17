@@ -17,7 +17,7 @@ namespace tests
 
         public override void ApplicationDidFinishLaunching(CCApplication application, CCWindow mainWindow)
         {
-            //application.SupportedOrientations = CCDisplayOrientation.LandscapeRight | CCDisplayOrientation.LandscapeLeft;
+
             //application.AllowUserResizing = true;
             application.PreferMultiSampling = false;
             application.ContentRootDirectory = "Content";
@@ -25,7 +25,7 @@ namespace tests
             sharedWindow = mainWindow;
 
             CCSize winSize = mainWindow.WindowSizeInPixels;
-            mainWindow.SetDesignResolutionSize(winSize.Width, winSize.Height, CCSceneResolutionPolicy.ShowAll);
+            CCScene.SetDefaultDesignResolution(winSize.Width, winSize.Height, CCSceneResolutionPolicy.ShowAll);
 
             #if WINDOWS || WINDOWSGL || WINDOWSDX 
 			//application.PreferredBackBufferWidth = 1024;
@@ -51,7 +51,7 @@ namespace tests
             CCSpriteFontCache.RegisterFont("Abduction", 26);
 
             mainWindow.DisplayStats = true;
-
+            mainWindow.StatsScale = 2;
             
 //            if (mainWindow.WindowSizeInPixels.Height > 320)
 //            {
