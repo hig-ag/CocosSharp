@@ -221,6 +221,12 @@ namespace CocosSharp
         PhoneApplicationPage windowsPhonePage;
         #endif
 
+        //protected override void Dispose(bool disposing)
+        //{
+        //    //CCDrawManager.SharedDrawManager = null;
+        //    base.Dispose(disposing);
+        //}
+
         MouseState priorMouseState;
         KeyboardState priorKeyboardState;
 
@@ -584,9 +590,9 @@ namespace CocosSharp
             Orientation androidSuppOrientation = androidView.Resources.Configuration.Orientation;
 
             if((androidSuppOrientation & Orientation.Portrait) != Orientation.Undefined)
-                supportedOrientations |= CCDisplayOrientation.Portrait | CCDisplayOrientation.PortraitDown;
+                supportedOrientations |= CCDisplayOrientation.Portrait | CCDisplayOrientation.PortraitDown | CCDisplayOrientation.LandscapeLeft | CCDisplayOrientation.LandscapeRight;
             if((androidSuppOrientation & Orientation.Landscape) != Orientation.Undefined)
-                supportedOrientations |= CCDisplayOrientation.LandscapeLeft | CCDisplayOrientation.LandscapeRight;
+                supportedOrientations |= CCDisplayOrientation.LandscapeLeft | CCDisplayOrientation.LandscapeRight | CCDisplayOrientation.Portrait | CCDisplayOrientation.PortraitDown;
 
             #elif WINDOWS_PHONE
             switch(WindowsPhonePage.SupportedOrientations)
@@ -665,6 +671,8 @@ namespace CocosSharp
             #if (WINDOWS && !NETFX_CORE) || WINDOWSGL || WINDOWSDX || MACOS
             xnaGame.Exit();
             #endif
+
+
         }
 
         #endregion Game state
@@ -818,11 +826,14 @@ namespace CocosSharp
 
             foreach (CCWindow window in gameWindows)
             {
-                window.DrawManager.BeginDraw();
+                if (window.DrawManager != null)
+                {
+                    window.DrawManager.BeginDraw();
 
-                window.MainLoop(GameTime);
+                    window.MainLoop(GameTime);
 
-                window.DrawManager.EndDraw();
+                    window.DrawManager.EndDraw();
+                }
             }
 
             base.Draw(gameTime);
@@ -1384,6 +1395,11 @@ namespace CocosSharp
             //If we reached here, we found no touches
             //matching the specified id.
             return null;
+        }
+
+        public void DisposeSharedComponents()
+        {
+            CCDrawManager.SharedDrawManager = null;
         }
     }
 }

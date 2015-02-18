@@ -367,7 +367,7 @@ namespace CocosSharp
                 Window.DrawManager.PushMatrix();
                 Window.DrawManager.WorldMatrix = Matrix.Identity;
 
-                renderTexture.BeginWithClear(0, 0, 0, 0);
+                renderTexture.BeginWithClear(1, 1, 1, 0);
             }
         }
 
