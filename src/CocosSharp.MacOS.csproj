@@ -28,6 +28,7 @@
     <IncludeMonoRuntime>False</IncludeMonoRuntime>
     <UseSGen>False</UseSGen>
     <UseMSBuildEngine>False</UseMSBuildEngine>
+    <UseRefCounting>false</UseRefCounting>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
@@ -44,6 +45,7 @@
     <IncludeMonoRuntime>False</IncludeMonoRuntime>
     <UseSGen>False</UseSGen>
     <UseMSBuildEngine>False</UseMSBuildEngine>
+    <UseRefCounting>false</UseRefCounting>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Distribution|AnyCPU' ">
     <DebugType>none</DebugType>
@@ -58,6 +60,7 @@
     <IncludeMonoRuntime>False</IncludeMonoRuntime>
     <UseSGen>False</UseSGen>
     <UseMSBuildEngine>False</UseMSBuildEngine>
+    <UseRefCounting>false</UseRefCounting>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DebugPhysics|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -75,6 +78,7 @@
     <CreatePackage>false</CreatePackage>
     <EnableCodeSigning>false</EnableCodeSigning>
     <EnablePackageSigning>false</EnablePackageSigning>
+    <UseRefCounting>false</UseRefCounting>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'ReleasePhysics|AnyCPU' ">
     <DebugType>none</DebugType>
@@ -91,6 +95,7 @@
     <CreatePackage>false</CreatePackage>
     <EnableCodeSigning>false</EnableCodeSigning>
     <IncludeMonoRuntime>false</IncludeMonoRuntime>
+    <UseRefCounting>false</UseRefCounting>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -357,15 +362,6 @@
     <Compile Include="text_input_node\ICCTextFieldDelegate.cs" />
     <Compile Include="tileMap_parallax_nodes\CCParallaxNode.cs" />
     <Compile Include="tileMap_parallax_nodes\CCPointObject.cs" />
-    <Compile Include="tileMap_parallax_nodes\CCTileMapAtlas.cs" />
-    <Compile Include="tileMap_parallax_nodes\CCTMXLayer.cs" />
-    <Compile Include="tileMap_parallax_nodes\CCTMXLayerInfo.cs" />
-    <Compile Include="tileMap_parallax_nodes\CCTMXMapInfo.cs" />
-    <Compile Include="tileMap_parallax_nodes\CCTMXObjectGroup.cs" />
-    <Compile Include="tileMap_parallax_nodes\CCTMXTiledMap.cs" />
-    <Compile Include="tileMap_parallax_nodes\CCTMXTileFlags.cs" />
-    <Compile Include="tileMap_parallax_nodes\CCTMXTilesetInfo.cs" />
-    <Compile Include="tileMap_parallax_nodes\CCTMXXMLParser.cs" />
     <Compile Include="Platform\CCFocusManager.cs" />
     <Compile Include="Platform\CCTask.cs" />
     <Compile Include="Platform\ICCFocusable.cs" />
@@ -418,6 +414,14 @@
     <Compile Include="physics\*.cs" />
     <Compile Include="physics\chipmunk\*.cs" />
     <Compile Include="physics\extensions\*.cs" />
+    <Compile Include="tileMap_parallax_nodes\CCTileMap.cs" />
+    <Compile Include="tileMap_parallax_nodes\CCTileMapInfo.cs" />
+    <Compile Include="tileMap_parallax_nodes\CCTileMapLayer.cs" />
+    <Compile Include="tileMap_parallax_nodes\CCTileMapStructs.cs" />
+    <Compile Include="tileMap_parallax_nodes\CCTileMapObjectGroup.cs" />
+    <Compile Include="tileMap_parallax_nodes\CCTileSetInfo.cs" />
+    <Compile Include="tileMap_parallax_nodes\CCTileLayerInfo.cs" />
+    <Compile Include="Platform\CCGeometryBatch.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="support\Converters\" />
@@ -437,10 +441,6 @@
     <ProjectReference Include="..\MonoGame\MonoGame.Framework\MonoGame.Framework.Net.MacOS.csproj">
       <Project>{1294038B-66C2-4359-AFE9-EA06A758CA94}</Project>
       <Name>MonoGame.Framework.Net.MacOS</Name>
-    </ProjectReference>
-    <ProjectReference Include="external lib\ChipmunkSharp\src\ChipmunkSharp\win32\ChipmunkSharp.Mac.csproj">
-      <Project>{FD50437F-B756-4BD8-99BE-B723F6E1EB45}</Project>
-      <Name>ChipmunkSharp.Mac</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>

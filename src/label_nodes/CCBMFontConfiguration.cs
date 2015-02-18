@@ -11,7 +11,7 @@ namespace CocosSharp
 {
 
 #if IOS
-    [MonoTouch.Foundation.Preserve (AllMembers = true)]
+    [Foundation.Preserve (AllMembers = true)]
 #endif
     internal sealed class CCBMFontConfiguration
     {
@@ -296,7 +296,11 @@ namespace CocosSharp
             index2 = line.IndexOf('"', index);
             value = line.Substring(index, index2 - index);
 
-            AtlasName = CocosSharp.CCFileUtils.FullPathFromRelativeFile(value, fntFile);
+            AtlasName = value;
+
+            var directory = string.Empty;
+            if (!CCFileUtils.GetDirectoryName(value, out directory))
+                AtlasName = CCFileUtils.FullPathFromRelativeFile(value, fntFile);
         }
 
         private void parseKerningEntry(string line)

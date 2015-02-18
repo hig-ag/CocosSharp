@@ -82,43 +82,50 @@ namespace CocosSharp
 
         #region Constructors
 
-        public CCLayerColor(CCColor4B color = default(CCColor4B)) 
+        public CCLayerColor(CCColor4B? color = null) 
             : this(CCLayer.DefaultCameraProjection, color)
         {
         }
 
-        public CCLayerColor(CCSize visibleBoundsDimensions, CCColor4B color = default(CCColor4B)) 
+        public CCLayerColor(CCSize visibleBoundsDimensions, CCColor4B? color = null) 
             : this(visibleBoundsDimensions, CCLayer.DefaultCameraProjection, color)
         {
         }
 
-        public CCLayerColor(CCSize visibleBoundsDimensions, CCCameraProjection projection, CCColor4B color = default(CCColor4B))
+        public CCLayerColor(CCSize visibleBoundsDimensions, CCCameraProjection projection, CCColor4B? color = null)
             : this(new CCCamera(projection, visibleBoundsDimensions), color)
         {
         }
 
-        public CCLayerColor(CCCamera camera, CCColor4B color = default(CCColor4B)) 
+        public CCLayerColor(CCCamera camera, CCColor4B? color = null) 
             : base(camera)
         {
             SetupCCLayerColor(color);
         }
 
-        public CCLayerColor(CCCameraProjection cameraProjection, CCColor4B color = default(CCColor4B)) 
+        public CCLayerColor(CCCameraProjection cameraProjection, CCColor4B? color = null) 
             : base(cameraProjection)
         {
             SetupCCLayerColor(color);
         }
 
-        void SetupCCLayerColor(CCColor4B color)
+        void SetupCCLayerColor(CCColor4B? color = null)
         {
-            DisplayedColor = RealColor = new CCColor3B(color.R, color.G, color.B);
-            DisplayedOpacity = RealOpacity = color.A;
+            var setupColor = (color.HasValue) ? color.Value : CCColor4B.Transparent;
+            DisplayedColor = RealColor = new CCColor3B(setupColor.R, setupColor.G, setupColor.B);
+            DisplayedOpacity = RealOpacity = setupColor.A;
             BlendFunc = CCBlendFunc.NonPremultiplied;
             UpdateColor();
         }
 
         #endregion Constructors
 
+        protected override void AddedToScene()
+        {
+            base.AddedToScene();
+
+            UpdateVerticesPosition();
+        }
 
         protected override void VisibleBoundsChanged()
         {
@@ -140,14 +147,16 @@ namespace CocosSharp
             {
                 var drawManager = Window.DrawManager;
 
+                bool depthTest = drawManager.DepthTest;
+
+                // We're drawing a quad at z=0
+                // We need to ensure depth testing is off so that the layer color doesn't obscure anything
+                drawManager.DepthTest = false;
                 drawManager.TextureEnabled = false;
                 drawManager.BlendFunc(BlendFunc);
                 drawManager.DrawPrimitives(PrimitiveType.TriangleStrip,  SquareVertices, 0, 2);
-
-                drawManager.ViewMatrix = Camera.ViewMatrix;
-                drawManager.ProjectionMatrix = Camera.ProjectionMatrix;
+                drawManager.DepthTest = depthTest;
             }
-
         }
 
         public override void UpdateColor()
@@ -162,7 +171,6 @@ namespace CocosSharp
 
         void UpdateVerticesPosition()
         {
-            CCSize contentSize = ContentSize;
             CCRect visibleBounds = VisibleBoundsWorldspace;
 
             //1, 2, 3, 3

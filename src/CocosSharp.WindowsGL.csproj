@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -373,15 +373,14 @@
     <Compile Include="text_input_node\ICCTextFieldDelegate.cs" />
     <Compile Include="tileMap_parallax_nodes\CCParallaxNode.cs" />
     <Compile Include="tileMap_parallax_nodes\CCPointObject.cs" />
-    <Compile Include="tileMap_parallax_nodes\CCTileMapAtlas.cs" />
-    <Compile Include="tileMap_parallax_nodes\CCTMXLayer.cs" />
-    <Compile Include="tileMap_parallax_nodes\CCTMXLayerInfo.cs" />
-    <Compile Include="tileMap_parallax_nodes\CCTMXMapInfo.cs" />
-    <Compile Include="tileMap_parallax_nodes\CCTMXObjectGroup.cs" />
-    <Compile Include="tileMap_parallax_nodes\CCTMXTiledMap.cs" />
-    <Compile Include="tileMap_parallax_nodes\CCTMXTileFlags.cs" />
-    <Compile Include="tileMap_parallax_nodes\CCTMXTilesetInfo.cs" />
-    <Compile Include="tileMap_parallax_nodes\CCTMXXMLParser.cs" />
+    <Compile Include="tileMap_parallax_nodes\CCTileLayerInfo.cs" />
+    <Compile Include="tileMap_parallax_nodes\CCTileMap.cs" />
+    <Compile Include="tileMap_parallax_nodes\CCTileMapInfo.cs" />
+    <Compile Include="tileMap_parallax_nodes\CCTileMapLayer.cs" />
+    <Compile Include="tileMap_parallax_nodes\CCTileMapObjectGroup.cs" />
+    <Compile Include="tileMap_parallax_nodes\CCTileMapStructs.cs" />
+    <Compile Include="tileMap_parallax_nodes\CCTileSetInfo.cs" />
+    <Compile Include="Platform\CCGeometryBatch.cs" />
     <Compile Include="predefine\ICCUpdatable.cs" />
     <Compile Include="script_support\ICCScriptingEngine.cs" />
   </ItemGroup>
@@ -393,10 +392,6 @@
     <ProjectReference Include="..\MonoGame\MonoGame.Framework\MonoGame.Framework.WindowsGL.csproj">
       <Project>{7DE47032-A904-4C29-BD22-2D235E8D91BA}</Project>
       <Name>MonoGame.Framework.WindowsGL</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\MonoGame\ThirdParty\Lidgren.Network\Lidgren.Network.Windows.csproj">
-      <Project>{AE483C29-042E-4226-BA52-D247CE7676DA}</Project>
-      <Name>Lidgren.Network.Windows</Name>
     </ProjectReference>
     <ProjectReference Include="..\box2d\box2d.WindowsGL.csproj">
       <Project>{B81B6701-7A78-4846-BF6F-04E0591F0F38}</Project>
